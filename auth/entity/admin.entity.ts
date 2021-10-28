@@ -3,8 +3,6 @@ import {
     Column,
     PrimaryGeneratedColumn,
   } from 'typeorm';
-  
-export type AdminRoleType = "admin" | "editor" | "ghost";
 
   @Entity()
   export class Admin {
