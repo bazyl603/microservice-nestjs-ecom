@@ -24,15 +24,8 @@ export class AdminController {
 
     @Get('/whoami')
     @Serialize(AdminDto)
-    @UseGuards(AuthGuard)
-    whoAmI(@CurrentUser() user: Admin) {
-      return user;
-    }
-
-    @Get('/whoamiAdmin')
-    @Serialize(AdminDto)
     @UseGuards(AdminGuard)
-    whoAmIAdmin(@CurrentUser() user: Admin) {
+    whoAmI(@CurrentUser() user: Admin) {
       return user;
     }
 
