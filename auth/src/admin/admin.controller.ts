@@ -1,13 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AuthService } from './auth.service';
 import { CreateAdminDto } from './dto/createAdmin.dto';
 import { LoginAdminDto } from './dto/loginAdmin.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { AdminDto } from './dto/admin.dto';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { CurrentUser } from 'src/decorators/curentUser.decorator';
-import { Admin } from 'entity/admin.entity';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { UserService } from 'src/user/user.service';
 import { AllAdminDto } from './dto/allAdmin.dto';
@@ -21,13 +18,6 @@ export class AdminController {
         private readonly authService: AuthService,
         private readonly userService: UserService
     ) {}
-
-    @Get('/whoami')
-    @Serialize(AdminDto)
-    @UseGuards(AdminGuard)
-    whoAmI(@CurrentUser() user: Admin) {
-      return user;
-    }
 
     @Post('/createAdmin')
     @Serialize(AdminDto)
@@ -77,7 +67,7 @@ export class AdminController {
         return this.adminService.remove(id);
     }
 
-    @Get('/user')
+    @Get('/user/all')
     @Serialize(AllUserDto)
     @UseGuards(AdminGuard)
     getAllUser() {

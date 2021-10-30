@@ -38,6 +38,6 @@ export class AuthService {
             return user            
         }
 
-        throw new BadRequestException('bad password');
+        throw new BadRequestException('bad password or user not found');
       }
 }

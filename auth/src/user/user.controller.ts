@@ -16,17 +16,11 @@ export class UserController {
         private readonly userService: UserService
     ) {}
 
-    @Get('/whoami')
+    @Post('/signup')
     @Serialize(UserDto)
-    @UseGuards(AuthGuard)
-    whoAmI(@CurrentUser() user: User) {
-      return user;
-    }
-
-    @Post('/singup')
-    @Serialize(UserDto)
-    async create(@Body() body: CreateUserDto) {
+    async create(@Body() body: CreateUserDto, @Session() session: any) {
         const user = await this.authService.signup(body);
+        session.user = { id: user.id, email: user.email, role: user.role }
         return user;
     }
 
@@ -47,25 +41,28 @@ export class UserController {
     @Get('/:id')
     @Serialize(UserDto)
     @UseGuards(AuthGuard)
-    getOne(@Param('id') id: string) {
+    getOne(@Param('id') id: string, @Session() session: any) {
+        if(session.user.id !== id){
+            throw new UnauthorizedException('no authorized!');            
+        }
         return this.userService.findOne(id);
     }
 
     @Patch('/editUser/:id')
     @UseGuards(AuthGuard)
-    edit(@Body() body: CreateUserDto , @Param('id') id: string, @CurrentUser() currentUser: User) {
-        if(currentUser.id === id){
-            return this.userService.update(id, body);
+    edit(@Body() body: CreateUserDto , @Param('id') id: string, @Session() session: any) {
+        if(session.user.id !== id){
+            throw new UnauthorizedException('no authorized!');   
         }
-        throw new UnauthorizedException('no authorized!');        
+        return this.userService.update(id, body);  
     }
 
     @Delete('/:id')
     @UseGuards(AuthGuard)
-    deleteUser(@Param('id') id: string, @CurrentUser() currentUser: User) {
-        if(currentUser.id === id){
-            return this.userService.remove(id);
+    deleteUser(@Param('id') id: string, @Session() session: any) {
+        if(session.user.id !== id){
+            throw new UnauthorizedException('no authorized!');            
         }
-        throw new UnauthorizedException('no authorized!');
+        return this.userService.remove(id);
     }
 }

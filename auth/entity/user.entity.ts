@@ -21,7 +21,7 @@ import {
     @Column()
     lastName: string;
 
-    @Column({ unique: true })
+    @Column()
     phoneNumber: number;
 
     @Column({ nullable: false, default: "user"})
