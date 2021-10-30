@@ -13,6 +13,7 @@ import { Admin } from 'entity/admin.entity';
 import { User } from 'entity/user.entity';
 import { AuthService as AuthUserService } from './user/auth.service';
 import { AuthService as AuthAdminService } from './admin/auth.service';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [UserModule, AdminModule,
@@ -24,7 +25,7 @@ import { AuthService as AuthAdminService } from './admin/auth.service';
     TypeOrmModule.forFeature([Admin]),
     TypeOrmModule.forFeature([User])
   ],
-  controllers: [UserController, AdminController],
+  controllers: [UserController, AdminController, AppController],
   providers: [AdminService, UserService, AuthUserService, AuthAdminService,
     {
       provide: APP_PIPE,

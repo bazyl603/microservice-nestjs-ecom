@@ -1,7 +1,7 @@
 import { Controller, Post, Session } from '@nestjs/common';
 
 @Controller('api')
-export class UserController {
+export class AppController {
     constructor() {}
 
     @Post('/signout')
