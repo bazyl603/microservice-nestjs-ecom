@@ -12,7 +12,7 @@ declare global {
 @Injectable()
 export class CurrentUserMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
-    const user = req.session.user;
+    const { user } = req.session || {};
     if (user) {
       req.currentUser = user;
     }
