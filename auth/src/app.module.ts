@@ -17,10 +17,10 @@ import { AppController } from './app.controller';
 
 @Module({
   imports: [UserModule, AdminModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
-    }),
+    // ConfigModule.forRoot({
+    //   isGlobal: true,
+    //   envFilePath: `.env.${process.env.NODE_ENV}`,
+    // }),
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([Admin]),
     TypeOrmModule.forFeature([User])
