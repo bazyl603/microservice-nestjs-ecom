@@ -19,7 +19,7 @@ import { AppController } from './app.controller';
   imports: [UserModule, AdminModule,
     ConfigModule.forRoot({
        isGlobal: true,
-       ignoreEnvFile: true
+       envFilePath: '.env',
     }),
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([Admin]),
@@ -42,7 +42,7 @@ export class AppModule {
     consumer
       .apply(
         cookieSession({
-          keys: process.env.COOKIE_KEY,
+          keys: [this.configService.get('COOKIE_KEY')],
         }),
       )
       .forRoutes('*');
