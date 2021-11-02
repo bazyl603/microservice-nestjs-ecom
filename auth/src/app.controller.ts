@@ -6,7 +6,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { Serialize } from './interceptors/serialize.interceptor';
 import { UserDto } from './user/dto/user.dto';
 
-@Controller('api')
+@Controller('api/auth')
 export class AppController {
     constructor() {}
 
