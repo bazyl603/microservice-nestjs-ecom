@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 const cookieSession = require('cookie-session');
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { LicenceKey } from './entity/licenceKey.entity';
+import { Products } from './entity/products.entity';
 
 @Module({
   imports: [
@@ -12,6 +14,9 @@ import { AppService } from './app.service';
        isGlobal: true,
        envFilePath: '.env',
     }),
+    TypeOrmModule.forRoot(),
+    TypeOrmModule.forFeature([Products]),
+    TypeOrmModule.forFeature([LicenceKey]),
   ],
   controllers: [AppController],
   providers: [AppService,

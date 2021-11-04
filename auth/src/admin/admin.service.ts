@@ -33,7 +33,7 @@ export class AdminService {
     }
 
     async update(id: string, attrs: Partial<Admin>) {
-      const user = await this.findOne(id);
+      const user = await this.repo.findOne(id);
       if (!user) {
         throw new NotFoundException('user not found');
       }
@@ -42,7 +42,7 @@ export class AdminService {
     }
 
     async remove(id: string) {
-      const user = await this.findOne(id);
+      const user = await this.repo.findOne(id);
       if (!user) {
         throw new NotFoundException('user not found');
       }
