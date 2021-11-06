@@ -2,11 +2,16 @@ import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JoinColumn } from 'typeorm';
 const cookieSession = require('cookie-session');
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LicenceKey } from './entity/licenceKey.entity';
 import { Products } from './entity/products.entity';
+import { AzureStorageModule } from '@nestjs/azure-storage';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: '../.env' });
 
 @Module({
   imports: [
