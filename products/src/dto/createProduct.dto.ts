@@ -1,6 +1,5 @@
 import {
     IsString,
-    IsNumber,
     IsNotEmpty,
     IsArray,
   } from 'class-validator';
@@ -10,12 +9,9 @@ export class CreateProductDto {
     @IsNotEmpty()
     title: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
     price: number;
-
-    @IsString()
-    image: string;
 
     @IsString()
     description: string;

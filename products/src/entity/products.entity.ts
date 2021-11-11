@@ -4,7 +4,10 @@ import {
     PrimaryGeneratedColumn,
     VersionColumn,
     OneToMany,
+    OneToOne,
+    JoinColumn,
   } from 'typeorm';
+import Image from './image.entity';
 import { LicenceKey } from './licenceKey.entity';
 
   @Entity()
@@ -18,8 +21,12 @@ import { LicenceKey } from './licenceKey.entity';
     @Column({ nullable: false })
     price: number;
 
-    @Column()
-    image: string;
+    @OneToOne(() => Image, image => image.id, {
+      eager: true,
+      nullable: false
+    })
+    @JoinColumn()
+    public image?: Image;
 
     @Column()
     description: string;

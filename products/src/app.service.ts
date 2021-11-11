@@ -4,15 +4,17 @@ import { Like, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { LicenceKey } from './entity/licenceKey.entity';
 import { Products } from './entity/products.entity';
+import { FileService } from './file.service';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectRepository(Products) private readonly productsRepo: Repository<Products>,
-    @InjectRepository(LicenceKey) private readonly licenceKeyRepo: Repository<LicenceKey>
+    @InjectRepository(LicenceKey) private readonly licenceKeyRepo: Repository<LicenceKey>,
+    private readonly filesService: FileService
   ) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, imageBuffer: Buffer, fileName: string) {
     const title = createProductDto.title
     const product = await this.productsRepo.find({title});
 
@@ -21,20 +23,25 @@ export class AppService {
     }
 
     try {
+      const img = await this.filesService.uploadFile(imageBuffer, fileName);
       const createProduct = await this.productsRepo.create({
         title: createProductDto.title,
+        image: img,
         price: createProductDto.price,
-        image: createProductDto.image,
         description: createProductDto.description
       });
-
+      
       for (const key of createProductDto.licenceKey) {
-        await this.licenceKeyRepo.create({
+        const check = await this.licenceKeyRepo.find({key});
+        if(check.length) {
+          throw new BadRequestException('key exist');
+        }
+        let k = await this.licenceKeyRepo.create({
           key: key,
           products: createProduct
         });
       }
-
+      await this.productsRepo.save(createProduct);
       return createProduct;
     } catch (err) {
       console.log(err); //no production
@@ -42,14 +49,27 @@ export class AppService {
     }
   }
 
-  async update(id: string, attrs: Partial<Products>) {
+  async update(id: string, attrs: Partial<Products>, imageBuffer: Buffer, fileName: string) {
     const product = await this.productsRepo.findOne(id);
     if(!product) {
       throw new NotFoundException('product not found');
     }
 
+    if (product.image) {
+      Object.assign(product, attrs);
+      await this.productsRepo.update(id, {
+        ...product,
+        image: null
+      });
+      await this.filesService.deletePublicFile(product.image.id);
+    }
+
+    const img = await this.filesService.uploadFile(imageBuffer, fileName);
     Object.assign(product, attrs);
-    return this.productsRepo.save(product);
+    await this.productsRepo.update(id, {
+      ...product,
+      image: img
+    })
   }
 
   async remove(id: string) {
@@ -57,6 +77,10 @@ export class AppService {
     if (!product) {
       throw new NotFoundException('user not found');
     }
+
+    const imgId = product.image?.id;
+    await this.filesService.deletePublicFile(imgId);
+
     return this.productsRepo.remove(product);
   }
 
@@ -85,6 +109,10 @@ export class AppService {
 
     try {
       for (const key of keys) {
+        const check = await this.licenceKeyRepo.find({key});
+        if(check.length) {
+          throw new BadRequestException('key exist');
+        }
         await this.licenceKeyRepo.create({
           key: key,
           products: product
@@ -100,6 +128,10 @@ export class AppService {
 
   getOneKey(productId) {
     return this.licenceKeyRepo.findOne({where: {products: productId}});
+  }
+
+  getAllKey(productId) {
+    return this.licenceKeyRepo.find({where: {products: productId}});
   }
 
   async removeKey(keys: string[]) {
