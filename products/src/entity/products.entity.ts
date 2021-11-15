@@ -23,7 +23,7 @@ import { LicenceKey } from './licenceKey.entity';
 
     @OneToOne(() => Image, image => image.id, {
       eager: true,
-      nullable: false
+      nullable: true
     })
     @JoinColumn()
     public image?: Image;

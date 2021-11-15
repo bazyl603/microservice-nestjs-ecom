@@ -14,7 +14,7 @@ export class AppService {
     private readonly filesService: FileService
   ) {}
 
-  async create(createProductDto: CreateProductDto, imageBuffer: Buffer, fileName: string) {
+  async create(createProductDto: CreateProductDto, imageBuffer?: Buffer, fileName?: string) {
     const title = createProductDto.title
     const product = await this.productsRepo.find({title});
 
@@ -23,54 +23,31 @@ export class AppService {
     }
 
     try {
-      const img = await this.filesService.uploadFile(imageBuffer, fileName);
-      const createProduct = await this.productsRepo.create({
+      let createProduct;
+      if (imageBuffer) {
+        const img = await this.filesService.uploadFile(imageBuffer, fileName);
+        createProduct = await this.productsRepo.create({
         title: createProductDto.title,
         image: img,
         price: createProductDto.price,
         description: createProductDto.description
-      });
-      
-      for (const key of createProductDto.licenceKey) {
-        const check = await this.licenceKeyRepo.find({key});
-        if(check.length) {
-          throw new BadRequestException('key exist');
-        }
-        let k = await this.licenceKeyRepo.create({
-          key: key,
-          products: createProduct
         });
-      }
+      } else {
+        createProduct = await this.productsRepo.create({
+          title: createProductDto.title,
+          image: null,
+          price: createProductDto.price,
+          description: createProductDto.description
+          });
+      }  
+      
       await this.productsRepo.save(createProduct);
       return createProduct;
     } catch (err) {
       console.log(err); //no production
       throw new NotFoundException('somthing is wrong');
     }
-  }
-
-  async update(id: string, attrs: Partial<Products>, imageBuffer: Buffer, fileName: string) {
-    const product = await this.productsRepo.findOne(id);
-    if(!product) {
-      throw new NotFoundException('product not found');
-    }
-
-    if (product.image) {
-      Object.assign(product, attrs);
-      await this.productsRepo.update(id, {
-        ...product,
-        image: null
-      });
-      await this.filesService.deletePublicFile(product.image.id);
-    }
-
-    const img = await this.filesService.uploadFile(imageBuffer, fileName);
-    Object.assign(product, attrs);
-    await this.productsRepo.update(id, {
-      ...product,
-      image: img
-    })
-  }
+  }  
 
   async remove(id: string) {
     const product = await this.productsRepo.findOne(id);
@@ -78,10 +55,46 @@ export class AppService {
       throw new NotFoundException('user not found');
     }
 
-    const imgId = product.image?.id;
-    await this.filesService.deletePublicFile(imgId);
+    await this.productsRepo.update(id, {
+      ...product,
+      image: null
+    });
+    
+    if (product.image) {
+      await this.filesService.deletePublicFile(product.image.id);
+    }   
 
-    return this.productsRepo.remove(product);
+    await this.removeAllKey(product.id);
+   
+    return await this.productsRepo.remove(product);
+  }
+
+  async update(id: string, attrs: CreateProductDto, imageBuffer?: Buffer, fileName?: string) {
+    const product = await this.productsRepo.findOne(id);
+    if(!product) {
+      throw new NotFoundException('product not found');
+    }
+
+    await this.productsRepo.update(id, {
+      title: attrs.title,
+      price: attrs.price,
+      description: attrs.description,
+      image: null
+    });
+
+    if (product.image) {
+      await this.filesService.deletePublicFile(product.image.id);
+    }
+    
+
+    if (imageBuffer) {
+      const img = await this.filesService.uploadFile(imageBuffer, fileName);
+      await this.productsRepo.update(id, {
+        image: img
+      });
+    }  
+    
+    return await this.productsRepo.findOne(id);
   }
 
   all() {
@@ -89,7 +102,7 @@ export class AppService {
   }
 
   find(title: string) {
-    return this.productsRepo.find({ where: {title: Like(title)}});
+    return this.productsRepo.find({ where: {title: Like('%' + title + '%')}});
   }
 
   findOne(id: string) {
@@ -111,15 +124,15 @@ export class AppService {
       for (const key of keys) {
         const check = await this.licenceKeyRepo.find({key});
         if(check.length) {
-          throw new BadRequestException('key exist');
+          throw new BadRequestException('key exist' + key);
         }
-        await this.licenceKeyRepo.create({
+        const k = await this.licenceKeyRepo.create({
           key: key,
           products: product
         });
+        await this.licenceKeyRepo.save(k);
       }
     } catch (err) {
-      console.log(err); //no production
       throw new NotFoundException('somthing is wrong');
     }    
 
@@ -134,16 +147,15 @@ export class AppService {
     return this.licenceKeyRepo.find({where: {products: productId}});
   }
 
-  async removeKey(keys: string[]) {
+  async removeKey(key: string) {
     try {
-      for (const key of keys) {
-        let licence = await this.licenceKeyRepo.findOne({where: {key: key}});
-        if(licence) {
-          await this.licenceKeyRepo.remove(licence);
-        }        
+      
+      let licence = await this.licenceKeyRepo.findOne({where: {key: key}});
+      if(licence) {
+        await this.licenceKeyRepo.remove(licence);
       }
+      return licence;
     } catch (err) {
-      console.log(err); //no production
       throw new NotFoundException('somthing is wrong');
     }
   }

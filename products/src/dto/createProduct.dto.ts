@@ -1,7 +1,6 @@
 import {
     IsString,
     IsNotEmpty,
-    IsArray,
   } from 'class-validator';
 
 export class CreateProductDto {
@@ -15,7 +14,4 @@ export class CreateProductDto {
 
     @IsString()
     description: string;
-
-    @IsArray()
-    licenceKey: [];
 }
