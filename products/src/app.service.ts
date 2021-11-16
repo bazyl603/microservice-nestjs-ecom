@@ -73,26 +73,28 @@ export class AppService {
     const product = await this.productsRepo.findOne(id);
     if(!product) {
       throw new NotFoundException('product not found');
-    }
-
-    await this.productsRepo.update(id, {
-      title: attrs.title,
-      price: attrs.price,
-      description: attrs.description,
-      image: null
-    });
-
-    if (product.image) {
-      await this.filesService.deletePublicFile(product.image.id);
-    }
-    
+    }  
 
     if (imageBuffer) {
       const img = await this.filesService.uploadFile(imageBuffer, fileName);
       await this.productsRepo.update(id, {
+        title: attrs.title,
+        price: attrs.price,
+        description: attrs.description,
         image: img
       });
-    }  
+    }  else {
+      await this.productsRepo.update(id, {
+        title: attrs.title,
+        price: attrs.price,
+        description: attrs.description,
+        image: null
+      });
+  
+      if (product.image) {
+        await this.filesService.deletePublicFile(product.image.id);
+      }
+    }
     
     return await this.productsRepo.findOne(id);
   }

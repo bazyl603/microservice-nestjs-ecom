@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Response, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query, Response, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
 import { Express } from 'express';
@@ -6,12 +6,15 @@ import { CreateProductDto } from './dto/createProduct.dto';
 import { FileService } from './file.service';
 import { LicenceKeyDto } from './dto/licenceKey.dto';
 import { LicenceKeyDeleteDto } from './dto/licenceKeyDelete.dto';
+import { ClientProxy, EventPattern } from '@nestjs/microservices';
 
 @Controller('api/products')
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly filesService: FileService
+    private readonly filesService: FileService,
+    @Inject('CART-SERVICE') private readonly clientCart: ClientProxy,
+    @Inject('ORDER-SERVICE') private readonly clientOrder: ClientProxy
     ) {}
 
   @Get('/')
@@ -46,21 +49,34 @@ export class AppController {
   @Put('/admin/:id')
   @UseInterceptors(FileInterceptor('file'))
   async edit(@Param('id') id: string, @Body() attrsProduct: CreateProductDto, @UploadedFile() file: Express.Multer.File | undefined) {
-    //TODO adding rabbitmq send to update
-    
+        
     if (file) {
-      return this.appService.update(id, attrsProduct, file.buffer, file.originalname);
+      const product = await this.appService.update(id, attrsProduct, file.buffer, file.originalname);
+
+      product.image = undefined;
+      product.licenceKey = undefined;
+
+      this.clientCart.emit('EDIT_PRODUCT', product);
+
+      return product;
     } 
 
-    return this.appService.update(id, attrsProduct);
-    
+    const product = await this.appService.update(id, attrsProduct);
+
+    product.image = undefined;
+    product.licenceKey = undefined;
+
+    this.clientCart.emit('EDIT_PRODUCT', product);
+
+    return product;    
     
   }
 
   @Delete('/admin/:id')
   async delete(@Param('id') id: string) {
-    //TODO rabbitmq delete send
-    return this.appService.remove(id);
+    const product = await this.appService.remove(id);
+    this.clientCart.emit('DELETE_PRODUCT', product.id);
+    return product;
   }
 
   @Get('/key/admin/:id')
@@ -76,5 +92,19 @@ export class AppController {
   @Delete('/key/admin')
   async deleteKey(@Body() key: LicenceKeyDeleteDto) {
     return this.appService.removeKey(key.licenceKey);
+  }
+
+  @EventPattern('GIVE_KEY')
+  async giveKey(productId: string) {
+    const key = await this.appService.getOneKey(productId);
+
+    this.clientOrder.emit('RECIVE_KEY', key.key);
+
+    await this.appService.removeKey(key.key);
+  }
+
+  @EventPattern('BACK_KEY')
+  async backKey(payLoad: {productId: string, key: string}) {
+    await this.appService.addKey(payLoad.productId, Array(payLoad.key));
   }
 }

@@ -11,6 +11,7 @@ import * as dotenv from 'dotenv';
 import * as Joi from 'joi';
 import { FileService } from './file.service';
 import Image from './entity/image.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 dotenv.config({ path: '../.env' });
 
@@ -30,6 +31,30 @@ dotenv.config({ path: '../.env' });
     TypeOrmModule.forFeature([Products]),
     TypeOrmModule.forFeature([LicenceKey]),
     TypeOrmModule.forFeature([Image]),
+    ClientsModule.register([
+      {
+        name: 'CART-SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.URL],
+          queue: 'cart_queue',
+          queueOptions: {
+            durable: false
+          },
+        },
+      },
+      {
+        name: 'ORDER-SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.URL],
+          queue: 'order_queue',
+          queueOptions: {
+            durable: false
+          },
+        },
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService,
