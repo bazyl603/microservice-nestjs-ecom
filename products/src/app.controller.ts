@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query, Response, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query, Response, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
 import { Express } from 'express';
@@ -7,6 +7,7 @@ import { FileService } from './file.service';
 import { LicenceKeyDto } from './dto/licenceKey.dto';
 import { LicenceKeyDeleteDto } from './dto/licenceKeyDelete.dto';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { AdminGuard } from './guards/admin.guard';
 
 @Controller('api/products')
 export class AppController {
@@ -36,6 +37,7 @@ export class AppController {
   }
 
   @Post('/admin')
+  @UseGuards(AdminGuard)
   @UseInterceptors(FileInterceptor('file'))
   async create(@Body() createProduct: CreateProductDto, @UploadedFile() file: Express.Multer.File | undefined) {
     if (file) {
@@ -47,6 +49,7 @@ export class AppController {
   }
   
   @Put('/admin/:id')
+  @UseGuards(AdminGuard)
   @UseInterceptors(FileInterceptor('file'))
   async edit(@Param('id') id: string, @Body() attrsProduct: CreateProductDto, @UploadedFile() file: Express.Multer.File | undefined) {
         
@@ -73,6 +76,7 @@ export class AppController {
   }
 
   @Delete('/admin/:id')
+  @UseGuards(AdminGuard)
   async delete(@Param('id') id: string) {
     const product = await this.appService.remove(id);
     this.clientCart.emit('DELETE_PRODUCT', product.id);
@@ -80,16 +84,19 @@ export class AppController {
   }
 
   @Get('/key/admin/:id')
+  @UseGuards(AdminGuard)
   async key(@Param('id') id: string) {
     return this.appService.getAllKey(id);    
   }
 
   @Post('/key/admin/:id')
+  @UseGuards(AdminGuard)
   async addKey(@Body() licenceKey: LicenceKeyDto, @Param('id') id: string) {
     return this.appService.addKey(id, licenceKey.licenceKey);    
   }
 
   @Delete('/key/admin')
+  @UseGuards(AdminGuard)
   async deleteKey(@Body() key: LicenceKeyDeleteDto) {
     return this.appService.removeKey(key.licenceKey);
   }
