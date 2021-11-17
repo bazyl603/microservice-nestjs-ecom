@@ -6,7 +6,7 @@ import { CreateProductDto } from './dto/createProduct.dto';
 import { FileService } from './file.service';
 import { LicenceKeyDto } from './dto/licenceKey.dto';
 import { LicenceKeyDeleteDto } from './dto/licenceKeyDelete.dto';
-import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { ClientProxy, EventPattern, MessagePattern } from '@nestjs/microservices';
 import { AdminGuard } from './guards/admin.guard';
 
 @Controller('api/products')
@@ -59,7 +59,7 @@ export class AppController {
       product.image = undefined;
       product.licenceKey = undefined;
 
-      this.clientCart.emit('EDIT_PRODUCT', product);
+      this.clientCart.emit({cmd:'EDIT_PRODUCT'}, product);
 
       return product;
     } 
@@ -69,7 +69,7 @@ export class AppController {
     product.image = undefined;
     product.licenceKey = undefined;
 
-    this.clientCart.emit('EDIT_PRODUCT', product);
+    this.clientCart.emit({cmd:'EDIT_PRODUCT'}, JSON.stringify(product));
 
     return product;    
     
@@ -79,7 +79,7 @@ export class AppController {
   @UseGuards(AdminGuard)
   async delete(@Param('id') id: string) {
     const product = await this.appService.remove(id);
-    this.clientCart.emit('DELETE_PRODUCT', product.id);
+    this.clientCart.emit({cmd:'DELETE_PRODUCT'}, JSON.stringify(product.id));
     return product;
   }
 
@@ -101,17 +101,17 @@ export class AppController {
     return this.appService.removeKey(key.licenceKey);
   }
 
-  @EventPattern('GIVE_KEY')
-  async giveKey(productId: string) {
+  @EventPattern({ cmd: 'GIVE_KEY' })
+  async giveKey(productId: any) {
     const key = await this.appService.getOneKey(productId);
 
-    this.clientOrder.emit('RECIVE_KEY', key.key);
+    this.clientOrder.emit({cmd:'RECIVE_KEY'}, JSON.stringify(key.key));
 
     await this.appService.removeKey(key.key);
   }
 
-  @EventPattern('BACK_KEY')
-  async backKey(payLoad: {productId: string, key: string}) {
+  @EventPattern({ cmd: 'BACK_KEY' })
+  async backKey(payLoad: any) {
     await this.appService.addKey(payLoad.productId, Array(payLoad.key));
   }
 }

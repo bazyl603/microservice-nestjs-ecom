@@ -20,19 +20,10 @@ async function bootstrap() {
     region: configService.get('AWS_REGION'),
   });
 
-  const url = configService.get('RABBITMQ_URL');
-  const queueName = configService.get('RABBITMQ_QUEUE_NAME');
-
   await app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
+    transport: Transport.TCP,
     options: {
-      urls: [url],
-      queue: queueName,
-      noAck: false,
-      queueOptions: {
-        durable: true,
-      },
-    },
+    }
   });
 
   await app.listen(PORT).then(() => console.log('[START] app started'));
