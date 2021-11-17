@@ -11,7 +11,7 @@ import { AllAdminDto } from './dto/allAdmin.dto';
 import { AllUserDto } from 'src/user/dto/allUser.dto';
 import { UserDto } from 'src/user/dto/user.dto';
 
-@Controller('api/auth/admin')
+@Controller('/admin')
 export class AdminController {
     constructor(
         private readonly adminService: AdminService,
