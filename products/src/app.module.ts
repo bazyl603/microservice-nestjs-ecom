@@ -12,6 +12,7 @@ import * as Joi from 'joi';
 import { FileService } from './file.service';
 import Image from './entity/image.entity';
 import { ClientProxyFactory, ClientsModule, Transport } from '@nestjs/microservices';
+import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
 
 dotenv.config({ path: '../.env' });
 
@@ -74,6 +75,7 @@ export class AppModule {
         cookieSession({
           keys: [this.configService.get('COOKIE_KEY')],
         }),
+        CurrentUserMiddleware
       )
       .forRoutes('*');
   }

@@ -14,6 +14,7 @@ import { User } from 'entity/user.entity';
 import { AuthService as AuthUserService } from './user/auth.service';
 import { AuthService as AuthAdminService } from './admin/auth.service';
 import { AppController } from './app.controller';
+import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
 
 @Module({
   imports: [UserModule, AdminModule,
@@ -44,6 +45,7 @@ export class AppModule {
         cookieSession({
           keys: [this.configService.get('COOKIE_KEY')],
         }),
+        CurrentUserMiddleware
       )
       .forRoutes('*');
   }
