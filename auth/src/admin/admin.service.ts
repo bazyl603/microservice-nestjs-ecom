@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from 'entity/admin.entity';
 import { UserService } from 'src/user/user.service';
@@ -34,6 +34,9 @@ export class AdminService {
 
     async update(id: string, attrs: Partial<Admin>) {
       const user = await this.repo.findOne(id);
+      if (user.email === attrs.email) {
+        throw new BadRequestException('valid email')
+      }
       if (!user) {
         throw new NotFoundException('user not found');
       }
