@@ -9,7 +9,7 @@ import { LicenceKeyDeleteDto } from './dto/licenceKeyDelete.dto';
 import { ClientProxy, EventPattern, MessagePattern } from '@nestjs/microservices';
 import { AdminGuard } from './guards/admin.guard';
 
-@Controller()
+@Controller('/api/products')
 export class AppController {
   constructor(
     private readonly appService: AppService,

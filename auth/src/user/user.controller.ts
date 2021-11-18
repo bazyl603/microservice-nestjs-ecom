@@ -9,7 +9,7 @@ import { LoginUserDto } from './dto/loginUser.dto';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
-@Controller('/user')
+@Controller('/api/auth/user')
 export class UserController {
     constructor(
         private readonly authService: AuthService,

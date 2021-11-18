@@ -11,14 +11,14 @@ spec:
       http:
         paths:          
           - pathType: Prefix
-            path: /api/auth/*
+            path: /auth
             backend:
               service:
                 name: auth-srv
                 port:
                   number: 3000
           - pathType: Prefix
-            path: /api/products/*
+            path: /products
             backend:
               service:
                 name: products-srv
