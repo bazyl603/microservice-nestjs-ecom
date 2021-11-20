@@ -58,6 +58,7 @@ export class AppController {
 
       product.image = undefined;
       product.licenceKey = undefined;
+      product.description = undefined;
 
       this.clientCart.emit({cmd:'EDIT_PRODUCT'}, product);
 
@@ -68,8 +69,9 @@ export class AppController {
 
     product.image = undefined;
     product.licenceKey = undefined;
+    product.description = undefined;
 
-    this.clientCart.emit({cmd:'EDIT_PRODUCT'}, JSON.stringify(product));
+    this.clientCart.emit({cmd:'EDIT_PRODUCT'}, product);
 
     return product;    
     
@@ -79,7 +81,7 @@ export class AppController {
   @UseGuards(AdminGuard)
   async delete(@Param('id') id: string) {
     const product = await this.appService.remove(id);
-    this.clientCart.emit({cmd:'DELETE_PRODUCT'}, JSON.stringify(product.id));
+    this.clientCart.emit({cmd:'DELETE_PRODUCT'}, product.id);
     return product;
   }
 
@@ -105,7 +107,7 @@ export class AppController {
   async giveKey(productId: any) {
     const key = await this.appService.getOneKey(productId);
 
-    this.clientOrder.emit({cmd:'RECIVE_KEY'}, JSON.stringify(key.key));
+    this.clientOrder.emit({cmd:'RECIVE_KEY'}, key.key);
 
     await this.appService.removeKey(key.key);
   }
