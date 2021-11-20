@@ -2,12 +2,13 @@ import {
     Entity,
     Column,
     ManyToOne,
+    PrimaryColumn,
   } from 'typeorm';
 import { Cart } from './cart.entity';
 
   @Entity()
   export class Products {
-    @Column({ nullable: false, unique: true })
+    @PrimaryColumn()
     id: string;
   
     @Column({ nullable: false, unique: true })
@@ -19,6 +20,6 @@ import { Cart } from './cart.entity';
     @Column()
     version: number;
 
-    @ManyToOne(() => Cart, cart => cart.id)
+    @ManyToOne(() => Cart, cart => cart.products)
     cart: Cart
   }

@@ -12,8 +12,12 @@ export class AppService {
     @InjectRepository(Cart) private readonly cartRepo: Repository<Cart>,
   ) {}
 
-  all() {
-    return this.cartRepo.find();
+  async all() {
+    const carts = await this.cartRepo.find();
+    if(!carts) {
+      return null;
+    }
+    return carts;
   }
 
   findOne(userId: string) {
@@ -21,7 +25,13 @@ export class AppService {
       return null;
     }
 
-    return this.cartRepo.findOne({where: {userId: userId}});
+    const cart = this.cartRepo.findOne({where: {userId: userId}});
+
+    if(!cart) {
+      return null;
+    }
+
+    return cart;
   }
 
   async addToCart(userId: string, attrs: ProductDto) {
@@ -30,27 +40,30 @@ export class AppService {
     if(!cart) {
       const product = await this.cartRepo.create({
         userId: userId,
-        products: {...attrs}
+        products: {
+          id: attrs.id,
+          title: attrs.title,
+          price: attrs.price,
+          version: attrs.version
+        }
       });
 
       await this.cartRepo.save(product);
       return product;
     }
-
-    return await this.cartRepo.update(cart.id, {
-      products: {
-        ...cart.products,
-        ...attrs
-      }
-    });
+    this.productsRepo.insert({id: attrs.id, title: attrs.title, price: attrs.price, version: attrs.version, cart: cart});
   }
 
   async deleteAllCart() {
-    const cart = await this.all();
+    const cart = await this.cartRepo.find();
 
-    if(!cart.length) {
+    if(!cart) {
       throw new NotFoundException(`Some Entities not found, no changes applied!`);
     }
+
+    const products = await this.productsRepo.find({where: {cart: cart}});
+
+    await this.productsRepo.remove(products);
 
     await this.cartRepo.remove(cart);
   }
@@ -94,7 +107,7 @@ export class AppService {
       return null;
     }
 
-    const cart = await this.findOne(userId);
+    const cart = await this.cartRepo.findOne({where: {userId: userId}});
 
     if(!cart) {
       throw new BadRequestException(`cart not exist`);
@@ -113,7 +126,9 @@ export class AppService {
     product.map(async (p) => {
       if(p.version < attrs.version) {
         await this.productsRepo.update(p.id, {
-          ...attrs
+          title: attrs.title,
+          price: attrs.price,
+          version: attrs.version
         });
       }      
     });

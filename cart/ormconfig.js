@@ -1,5 +1,5 @@
 var dbConfig = {
-  synchronize: false,
+  synchronize: true,
     migrations: ['migrations/*.js'],
     cli: {
       migrationsDir: 'migrations',

@@ -2,13 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as helmet from 'helmet';
 import { ConfigService } from '@nestjs/config';
-import { config } from 'aws-sdk';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.use(helmet());
+
+  const config = new DocumentBuilder()
+    .setTitle('Cart')
+    .setDescription('The cartAPI description')
+    .setVersion('1.0')
+    .addTag('cart')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger', app, document);
 
   const configService = app.get(ConfigService);
 

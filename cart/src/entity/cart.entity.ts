@@ -15,7 +15,7 @@ import { Products } from './products.entity';
     @Column({ nullable: false, unique: true })
     userId: string;
 
-    @OneToMany(() => Products, products => products.id, {
+    @OneToMany(() => Products, products => products.cart, {
       eager: true,
       nullable: true
     })
