@@ -14,7 +14,6 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly filesService: FileService,
-    @Inject('CART-SERVICE') private readonly clientCart: ClientProxy,
     @Inject('ORDER-SERVICE') private readonly clientOrder: ClientProxy
     ) {}
 
@@ -55,23 +54,10 @@ export class AppController {
         
     if (file) {
       const product = await this.appService.update(id, attrsProduct, file.buffer, file.originalname);
-
-      product.image = undefined;
-      product.licenceKey = undefined;
-      product.description = undefined;
-
-      this.clientCart.emit({cmd:'EDIT_PRODUCT'}, product);
-
       return product;
     } 
 
     const product = await this.appService.update(id, attrsProduct);
-
-    product.image = undefined;
-    product.licenceKey = undefined;
-    product.description = undefined;
-
-    this.clientCart.emit({cmd:'EDIT_PRODUCT'}, product);
 
     return product;    
     
@@ -81,7 +67,6 @@ export class AppController {
   @UseGuards(AdminGuard)
   async delete(@Param('id') id: string) {
     const product = await this.appService.remove(id);
-    this.clientCart.emit({cmd:'DELETE_PRODUCT'}, product.id);
     return product;
   }
 
