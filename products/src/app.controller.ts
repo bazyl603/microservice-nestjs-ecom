@@ -89,10 +89,10 @@ export class AppController {
   }
 
   @EventPattern({ cmd: 'GIVE_KEY' })
-  async giveKey(productId: any) {
-    const key = await this.appService.getOneKey(productId);
+  async giveKey(order: any) {
+    const key = await this.appService.getOneKey(order.productId);
 
-    this.clientOrder.emit({cmd:'RECIVE_KEY'}, key.key);
+    this.clientOrder.emit({cmd:'RECIVE_KEY'}, {key, order});
 
     await this.appService.removeKey(key.key);
   }

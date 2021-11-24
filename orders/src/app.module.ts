@@ -5,14 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 const cookieSession = require('cookie-session');
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LicenceKey } from './entity/licenceKey.entity';
-import { Products } from './entity/products.entity';
 import * as dotenv from 'dotenv';
-import * as Joi from 'joi';
-import { FileService } from './file.service';
-import Image from './entity/image.entity';
 import { ClientProxyFactory, ClientsModule, Transport } from '@nestjs/microservices';
-import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
+import Product from './entity/product.entity';
+import { Orders } from './entity/orders.entity';
+//import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
 
 dotenv.config({ path: '../.env' });
 
@@ -21,21 +18,13 @@ dotenv.config({ path: '../.env' });
     ConfigModule.forRoot({
        isGlobal: true,
        envFilePath: '.env',
-       validationSchema: Joi.object({
-        AWS_REGION: Joi.string().required(),
-        AWS_ACCESS_KEY_ID: Joi.string().required(),
-        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
-        AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
-       }),
     }),
     TypeOrmModule.forRoot(),
-    TypeOrmModule.forFeature([Products]),
-    TypeOrmModule.forFeature([LicenceKey]),
-    TypeOrmModule.forFeature([Image]),
+    TypeOrmModule.forFeature([Product]),
+    TypeOrmModule.forFeature([Orders]),
   ],
   controllers: [AppController],
   providers: [AppService,
-    FileService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
@@ -43,7 +32,7 @@ dotenv.config({ path: '../.env' });
       }),
     },
     {
-      provide: 'ORDER-SERVICE',
+      provide: 'PRODUCTS-SERVICE',
       useFactory: (configService: ConfigService) => { 
         return ClientProxyFactory.create({
           transport: Transport.TCP,
@@ -61,10 +50,10 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
+        //CurrentUserMiddleware,
         cookieSession({
           keys: [this.configService.get('COOKIE_KEY')],
-        }),
-        CurrentUserMiddleware
+        }),        
       )
       .forRoutes('*');
   }
