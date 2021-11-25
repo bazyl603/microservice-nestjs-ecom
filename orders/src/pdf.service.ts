@@ -21,9 +21,9 @@ export class PdfService {
     throw new NotFoundException('order not exist');
   }
 
-  //  if(order.paymentStatus === PaymentStatus.WAIT || order.paymentStatus === PaymentStatus.REMOVED) {
-  //   throw new NotFoundException('must pay or order removed');
-  //  }
+   if(order.paymentStatus === PaymentStatus.WAIT || order.paymentStatus === PaymentStatus.REMOVED) {
+    throw new NotFoundException('must pay or order removed');
+   }
 
   const pdfBuffer: Buffer = await new Promise(resolve => {
     const doc = new PDFDocument({
