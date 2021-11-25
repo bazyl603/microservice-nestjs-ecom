@@ -1,15 +1,17 @@
-import { Body, Controller, Delete, Get, Inject, NotFoundException, Param, Post, Put, Query, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, NotFoundException, Param, Post, Put, Query, Res, Response, } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ClientProxy, EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { AdminGuard } from './guards/admin.guard';
 import { NewOrderDto } from './dto/newOrder.dto';
 import { TokenDto } from './dto/token.dto';
+import { PdfService } from './pdf.service';
 
 @Controller('/api/order')
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    @Inject('PRODUCTS-SERVICE') private readonly clientProducts: ClientProxy
+    @Inject('PRODUCTS-SERVICE') private readonly clientProducts: ClientProxy,
+    private pdfService: PdfService
     ) {}
 
   //user
@@ -25,8 +27,16 @@ export class AppController {
   }
 
   @Get('/download/:orderId')
-  async downloadKey(@Param('orderId') orderId: string) {
+  async downloadKey(@Param('orderId') orderId: string, @Res() res: any,) {
+    const buffer = await this.pdfService.generatePdf(orderId);
 
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename=example.pdf',
+      'Content-Length': buffer.length,
+    })
+
+    res.end(buffer)
   }
 
   @Post('/')

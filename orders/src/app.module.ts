@@ -12,6 +12,7 @@ import { Orders } from './entity/orders.entity';
 import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
 import * as Joi from 'joi';
 import { StripeService } from './stripe.service';
+import { PdfService } from './pdf.service';
 
 dotenv.config({ path: '../.env' });
 
@@ -30,7 +31,7 @@ dotenv.config({ path: '../.env' });
     TypeOrmModule.forFeature([Orders]),
   ],
   controllers: [AppController],
-  providers: [AppService, StripeService, 
+  providers: [AppService, StripeService, PdfService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
