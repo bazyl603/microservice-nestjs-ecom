@@ -34,7 +34,7 @@ import Product from './product.entity';
     public licenceKey: string;
 
     @Column({ nullable: true })
-    token: string;
+    stripeId: string;
 
     @VersionColumn()
     version: number;

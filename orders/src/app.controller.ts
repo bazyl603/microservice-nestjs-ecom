@@ -41,7 +41,16 @@ export class AppController {
 
   @Post('/paymant/:orderId')
   async paymant(@Param('orderId') orderId: string, @Body() token: TokenDto) {
+    const paid = await this.appService.paymant(orderId, token.token);
+
+    if(!paid) {
+      throw new NotFoundException('paymant error');
+    }
+
     //get key from products
+    this.clientProducts.emit({cmd:'GIVE_KEY'}, paid);
+    
+    return await this.appService.getByOrders(orderId);
   }
 
 

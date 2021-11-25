@@ -47,6 +47,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "sqlite3": "^5.0.2",
+    "stripe": "^8.191.0",
     "swagger-ui-express": "^4.1.6",
     "typeorm": "^0.2.38",
     "uuid": "^8.3.2"

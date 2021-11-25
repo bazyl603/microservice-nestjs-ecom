@@ -5,12 +5,14 @@ import { Orders } from './entity/orders.entity';
 import { PaymentStatus } from 'enums/EnumPaymentStatus';
 import { NewOrderDto } from './dto/newOrder.dto';
 import Product from './entity/product.entity';
+import { StripeService } from './stripe.service';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectRepository(Orders) private readonly ordersRepo: Repository<Orders>,
     @InjectRepository(Product) private readonly productRepo: Repository<Product>,
+    private readonly stripeService: StripeService
   ) {}
 
   async getByUser(userId: string) {
@@ -111,5 +113,30 @@ export class AppService {
     return await this.ordersRepo.update(orderId, {
       licenceKey: key
     });
+  }
+
+  async paymant(orderId: string, token: string) {
+    const order = await this.ordersRepo.findOne(orderId);
+
+    if(!order) {
+      throw new NotFoundException('missing order');
+    }
+
+    if(order.paymentStatus === PaymentStatus.REMOVED || order.paymentStatus === PaymentStatus.PAID)  {
+      throw new BadRequestException('you can not pay from paied or removed orders');
+    }
+
+    const charge = await this.stripeService.charge(order.price * 100, token);
+
+    if(!charge.id) {
+      throw new NotFoundException('payment error');
+    }
+
+    await this.ordersRepo.update(orderId, {
+      paymentStatus: PaymentStatus.PAID,
+      stripeId: charge.id
+    });
+
+    return await this.ordersRepo.findOne(orderId);
   }
 }

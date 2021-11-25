@@ -10,6 +10,8 @@ import { ClientProxyFactory, ClientsModule, Transport } from '@nestjs/microservi
 import Product from './entity/product.entity';
 import { Orders } from './entity/orders.entity';
 import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
+import * as Joi from 'joi';
+import { StripeService } from './stripe.service';
 
 dotenv.config({ path: '../.env' });
 
@@ -18,13 +20,17 @@ dotenv.config({ path: '../.env' });
     ConfigModule.forRoot({
        isGlobal: true,
        envFilePath: '.env',
+       validationSchema: Joi.object({
+        STRIPE_SECRET_KEY: Joi.string(),
+        STRIPE_CURRENCY: Joi.string(),
+       }),
     }),
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([Product]),
     TypeOrmModule.forFeature([Orders]),
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [AppService, StripeService, 
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
