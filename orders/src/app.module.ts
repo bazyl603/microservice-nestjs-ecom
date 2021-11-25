@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv';
 import { ClientProxyFactory, ClientsModule, Transport } from '@nestjs/microservices';
 import Product from './entity/product.entity';
 import { Orders } from './entity/orders.entity';
-//import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
+import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
 
 dotenv.config({ path: '../.env' });
 
@@ -50,10 +50,10 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
-        //CurrentUserMiddleware,
         cookieSession({
           keys: [this.configService.get('COOKIE_KEY')],
-        }),        
+        }),  
+        CurrentUserMiddleware      
       )
       .forRoutes('*');
   }

@@ -24,8 +24,8 @@ export class AppService {
   }
 
   async getByOrders(orderId: string) {
-    const orders = await this.ordersRepo.findOne(orderId);
-
+    const orders = await this.ordersRepo.findOne({where: {id: orderId}});
+    
     if(!orders) {
       throw new NotFoundException('no order');
     }
@@ -42,7 +42,7 @@ export class AppService {
     await this.productRepo.save(product);
 
     const createOrders = await this.ordersRepo.create({
-      price: attrs.price,
+      price: Number(attrs.price),
       userId: attrs.userId,
       paymentStatus: PaymentStatus.WAIT,
       product: product
@@ -64,13 +64,14 @@ export class AppService {
 
   async getLikeAdmin(orderId: string | null) {
     if(orderId) {
-      const order = await this.ordersRepo.findOne({where: {id: orderId}});
+      const orders = await this.ordersRepo.findOne({where: {id: orderId}});
 
-      if(!order) {
-        throw new NotFoundException('no order');
-      }
+    
+    if(!orders) {
+      throw new NotFoundException('no order with this id');
+    }
 
-      return order
+    return orders;
     }
 
     const orders = await this.ordersRepo.find();
@@ -83,13 +84,19 @@ export class AppService {
   }
 
   async deleteLikeAdmin(orderId: string) {    
-    const order = await this.ordersRepo.findOne({where: {id: orderId}});
+    const order = await this.ordersRepo.findOne(orderId);
 
     if(!order) {
       throw new NotFoundException('no order, no delete');
     }
 
-    await this.productRepo.remove(order.product);
+    const product = await this.productRepo.findOne(order.product.id);
+
+    await this.ordersRepo.update(order.id, {
+      product: null
+    });
+
+    await this.productRepo.remove(product);
 
     return await this.ordersRepo.remove(order);
   }

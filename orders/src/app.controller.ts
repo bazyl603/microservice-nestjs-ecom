@@ -14,8 +14,8 @@ export class AppController {
 
   //user
 
-  @Get('/:userId')
-  async getByUser(@Param('userId') userId: string) {
+  @Get('/')
+  async getByUser(@Query('userId') userId: string) {
     return this.appService.getByUser(userId);
   }
 
@@ -47,8 +47,8 @@ export class AppController {
 
   //admin
 
-  @Get('/admin')
-  async getLikeAdmin(@Query('orderId') orderId: string) {
+  @Get('/admin/all')
+  async getLikeAdmin(@Query('orderId') orderId: string | null) {
     return this.appService.getLikeAdmin(orderId);
   }
 

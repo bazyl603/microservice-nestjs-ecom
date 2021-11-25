@@ -15,7 +15,7 @@ import Product from './product.entity';
     id: string;
   
     @Column({ nullable: false })
-    price: string;
+    price: number;
 
     @OneToOne(() => Product, product => product.id, {
       eager: true,
