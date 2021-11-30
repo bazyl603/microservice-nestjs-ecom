@@ -43,6 +43,7 @@
     "dotenv": "^10.0.0",
     "helmet": "^4.6.0",
     "joi": "^17.4.2",
+    "mysql": "^2.18.1",
     "pdfkit": "^0.13.0",
     "redis": "^3.1.2",
     "reflect-metadata": "^0.1.13",
@@ -51,7 +52,7 @@
     "sqlite3": "^5.0.2",
     "stripe": "^8.191.0",
     "swagger-ui-express": "^4.1.6",
-    "typeorm": "^0.2.38",
+    "typeorm": "^0.2.41",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

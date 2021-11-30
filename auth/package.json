@@ -35,12 +35,13 @@
     "cookie-session": "^1.4.0",
     "cross-env": "^7.0.3",
     "helmet": "^4.6.0",
+    "mysql": "^2.18.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "sqlite3": "^5.0.2",
-    "typeorm": "^0.2.38"
+    "typeorm": "^0.2.41"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
