@@ -21,7 +21,6 @@ export class AdminController {
 
     @Post('/createAdmin')
     @Serialize(AdminDto)
-    @UseGuards(AdminGuard)
     async create(@Body() body: CreateAdminDto) {
         const admin = await this.authService.signup(body);
         return admin;
