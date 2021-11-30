@@ -37,6 +37,10 @@ export class AuthService {
           throw new NotFoundException('user not found');
         }
 
+        if(password === user.password) {
+            return user;
+        }
+
         const isMach = await bcrypt.compare(password, user.password);
 
         if(isMach) {
