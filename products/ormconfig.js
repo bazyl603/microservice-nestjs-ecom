@@ -29,7 +29,7 @@ var dbConfig = {
         "port": process.env.DB_PORT,
         "username": "root",
         "password": process.env.DB_PASSWORD,
-        "database": "orders",
+        "database": "products",
         "entities": ['**/*.entity.js'],
         "synchronize": true
       });
