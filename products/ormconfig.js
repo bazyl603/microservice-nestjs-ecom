@@ -27,7 +27,7 @@ var dbConfig = {
         "type": "mysql",
         "host": process.env.DB_HOST,
         "port": process.env.DB_PORT,
-        "username": "new_user",
+        "username": "root",
         "password": process.env.DB_PASSWORD,
         "database": "products",
         "entities": ['**/*.entity.js'],
