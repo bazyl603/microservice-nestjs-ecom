@@ -40,11 +40,11 @@ dotenv.config({ path: '../.env' });
     },
     {
       provide: 'PRODUCTS-SERVICE',
-      useFactory: (configService: ConfigService) => { 
+      useFactory: (configService: ConfigService) => {
         return ClientProxyFactory.create({
           transport: Transport.TCP,
           options: {
-          },
+          }
         })
       },
       inject: [ConfigService],
