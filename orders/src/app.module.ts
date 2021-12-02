@@ -13,11 +13,13 @@ import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
 import * as Joi from 'joi';
 import { StripeService } from './stripe.service';
 import { PdfService } from './pdf.service';
+import { HttpModule } from '@nestjs/axios';
 
 dotenv.config({ path: '../.env' });
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
        isGlobal: true,
        envFilePath: '.env',
@@ -41,10 +43,16 @@ dotenv.config({ path: '../.env' });
     {
       provide: 'PRODUCTS-SERVICE',
       useFactory: (configService: ConfigService) => {
+        const RABBITMQ = configService.get('RABBITMQ');
         return ClientProxyFactory.create({
-          transport: Transport.TCP,
+          transport: Transport.RMQ,
           options: {
-          }
+            urls: [RABBITMQ],
+            queue: 'products-queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         })
       },
       inject: [ConfigService],

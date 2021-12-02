@@ -13,11 +13,13 @@ import { FileService } from './file.service';
 import Image from './entity/image.entity';
 import { ClientProxyFactory, ClientsModule, Transport } from '@nestjs/microservices';
 import { CurrentUserMiddleware } from './middlewares/currentUser.middleware';
+import { HttpModule } from '@nestjs/axios';
 
 dotenv.config({ path: '../.env' });
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
        isGlobal: true,
        envFilePath: '.env',
@@ -45,10 +47,16 @@ dotenv.config({ path: '../.env' });
     {
       provide: 'ORDER-SERVICE',
       useFactory: (configService: ConfigService) => {
+        const RABBITMQ = configService.get('RABBITMQ');
         return ClientProxyFactory.create({
-          transport: Transport.TCP,
+          transport: Transport.RMQ,
           options: {
-          }
+            urls: [RABBITMQ],
+            queue: 'orders-queue',
+            queueOptions: {
+              durable: true,
+            },
+          },
         })
       },
       inject: [ConfigService],

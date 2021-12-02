@@ -13,10 +13,17 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const PORT = configService.get('PORT');
+  const RABBITMQ = configService.get('RABBITMQ');
 
   await app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.TCP,
+    transport: Transport.RMQ,
     options: {
+      urls: [RABBITMQ],
+      queue: 'orders-queue',
+      noAck: true,
+      queueOptions: {
+        durable: true,
+      },
     }
   });
 

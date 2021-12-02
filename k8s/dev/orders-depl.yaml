@@ -27,5 +27,5 @@ spec:
   ports:
     - name: orders
       protocol: TCP
-      port: 3000
+      port: 3002
       targetPort: 3002

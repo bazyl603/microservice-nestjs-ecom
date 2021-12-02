@@ -13,6 +13,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const PORT = configService.get('PORT');
+  const RABBITMQ = configService.get('RABBITMQ');
 
   config.update({
     accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
@@ -21,8 +22,14 @@ async function bootstrap() {
   });
 
   await app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.TCP,
+    transport: Transport.RMQ,
     options: {
+      urls: [RABBITMQ],
+      queue: 'products-queue',
+      noAck: true,
+      queueOptions: {
+        durable: true,
+      },
     }
   });
 
